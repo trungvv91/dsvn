@@ -15,7 +15,6 @@ import com.dsvn.tokenization.Tokenization;
 public class TokenizationDemo extends javax.swing.JFrame {
 
 //    Tokenization tokenization;
-
     /**
      * Creates new form TokenizationDemo
      */
@@ -96,8 +95,8 @@ public class TokenizationDemo extends javax.swing.JFrame {
         String[] sentences = txtInput.getText().split("[';!,\\.\\?]");
         for (String sentence : sentences) {
             tokenization.addSentence(sentence.split("\\s+"));
-            result += tokenization.getTokenizedResult();
         }
+        result = tokenization.getTokenizedResult();
         txtOutput.setText(result);
     }//GEN-LAST:event_btnTokenizeActionPerformed
 

@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public class Tokenization {
 
-    ArrayList<WordNode> wordlist;
+    ArrayList<MyNode> wordlist;
     ArrayList<Integer> tracking;
 
     public Tokenization() {
@@ -22,26 +22,56 @@ public class Tokenization {
         tracking = new ArrayList<>();
     }
 
+    public static boolean IsValidPath(int label1, int label2) {
+        boolean result;
+        switch (label1) {
+            case WordLabel.O:
+                result = (label2 == WordLabel.O) || (label2 == WordLabel.S);
+                break;
+            case WordLabel.S:
+                result = (label2 == WordLabel.I) || (label2 == WordLabel.E);
+                break;
+            case WordLabel.I:
+                result = (label2 == WordLabel.I) || (label2 == WordLabel.E);
+                break;
+            case WordLabel.E:
+                result = (label2 == WordLabel.O) || (label2 == WordLabel.S);
+                break;
+            default:
+                result = false;
+                break;
+        }
+        return result;
+    }
+
     public void addWord(String word) {
         WordNode newWord = new WordNode(word);
-        WordNode prevWord = wordlist.get(wordlist.size() - 1);
-        if (WordNode.IsBeginNode(prevWord)) {
-            for (int i = 0; i < WordLabel.NUMBER_OF_LABELS; i++) {
-                newWord.pnodeLabels[i] = WordLabel.O;
-                double g = Evaluation.Eval(prevWord.word, WordLabel.NONE, newWord.word.toLowerCase(), i);
-                if (newWord.values[i] < prevWord.values[WordLabel.O] + g) {
-                    newWord.values[i] = prevWord.values[WordLabel.O] + g;
-                }
-            }
+        MyNode prevNode = wordlist.get(wordlist.size() - 1);
+        if (MyNode.isStartNode(prevNode)) {
+            SpecialNode startNode = (SpecialNode) prevNode;
+
+            double g;
+            // Outside
+            g = Evaluation.Eval(startNode.word, WordLabel.NONE, newWord.word.toLowerCase(), WordLabel.O);
+            newWord.values[WordLabel.O] = startNode.value + g;
+            newWord.pnodeLabels[WordLabel.O] = WordLabel.O;
+
+            // Start
+            g = Evaluation.Eval(startNode.word, WordLabel.NONE, newWord.word.toLowerCase(), WordLabel.S);
+            newWord.values[WordLabel.S] = startNode.value + g;
+            newWord.pnodeLabels[WordLabel.S] = WordLabel.O;
         } else {
+            WordNode prevWord = (WordNode) prevNode;
             for (int i = 0; i < WordLabel.NUMBER_OF_LABELS; i++) {
                 for (int j = 0; j < WordLabel.NUMBER_OF_LABELS; j++) {
                     double g = Evaluation.Eval(prevWord.word, j, newWord.word, i);
-                    if (newWord.values[i] < prevWord.values[j] + g) {
+                    if (Tokenization.IsValidPath(j, i) && newWord.values[i] < prevWord.values[j] + g) {
                         newWord.values[i] = prevWord.values[j] + g;
                         newWord.pnodeLabels[i] = j;
                     }
                 }
+
+                // default trỏ đến Outside của node cha
                 if (newWord.pnodeLabels[i] == WordLabel.NONE) {
                     newWord.pnodeLabels[i] = WordLabel.O;
                 }
@@ -50,34 +80,37 @@ public class Tokenization {
         wordlist.add(newWord);
     }
 
-    public void addBeginNode() {
-        wordlist.add(WordNode.CreateBeginNode());
+    public void addStartOfSentence() {
+        wordlist.add(SpecialNode.CreateStartNode());
     }
 
-    public void addEndNode() {
-        WordNode endNode = WordNode.CreateEndNode();
-        WordNode prevWord = wordlist.get(wordlist.size() - 1);
+    public void addEndOfSentence() {
+        SpecialNode endNode = SpecialNode.CreateEndNode();
+        WordNode prevWord = (WordNode) wordlist.get(wordlist.size() - 1);
         double g = Evaluation.Eval(prevWord.word, WordLabel.O, endNode.word, WordLabel.NONE);
-        endNode.values[WordLabel.O] = prevWord.values[WordLabel.O] + g;
-        endNode.pnodeLabels[WordLabel.O] = WordLabel.O;
-        
+        endNode.value = prevWord.values[WordLabel.O] + g;
+        endNode.pnodeLabel = WordLabel.O;
+
         g = Evaluation.Eval(prevWord.word, WordLabel.E, endNode.word, WordLabel.NONE);
-        if (endNode.values[WordLabel.O] < prevWord.values[WordLabel.E] + g) {
-            endNode.values[WordLabel.O] = prevWord.values[WordLabel.E] + g;
-            endNode.pnodeLabels[WordLabel.O] = WordLabel.E;
+        if (endNode.value < prevWord.values[WordLabel.E] + g) {
+            endNode.value = prevWord.values[WordLabel.E] + g;
+            endNode.pnodeLabel = WordLabel.E;
         }
         wordlist.add(endNode);
 
         // store new sentence track everywhen reaching the end of each sentence
         int index = tracking.size();
-        int currLabel = endNode.pnodeLabels[WordLabel.O];
+        tracking.add(index, WordLabel.NONE);
+        int currLabel = endNode.pnodeLabel;
         for (int i = wordlist.size() - 2;; i--) {
-            tracking.add(index, currLabel);
-            if (currLabel == WordLabel.NONE) {      // START node
-                break;
+            MyNode currNode = wordlist.get(i);
+            if (currNode instanceof WordNode) {
+                tracking.add(index, currLabel);
+                currLabel = ((WordNode) currNode).pnodeLabels[currLabel];
+            } else {        // START node
+                tracking.add(index, WordLabel.NONE);
+                return;
             }
-            WordNode currNode = wordlist.get(i);
-            currLabel = currNode.pnodeLabels[currLabel];
         }
     }
 
@@ -88,43 +121,44 @@ public class Tokenization {
      * @param words
      */
     public void addSentence(String[] words) {
-        addBeginNode();
+        addStartOfSentence();
         for (String word : words) {
             addWord(word);
         }
-        addEndNode();
+        addEndOfSentence();
     }
 
     public String getTokenizedResult() {
         String result = "";
-        boolean isBEGIN = false;
         for (int i = 0; i < tracking.size(); i++) {
-            if (isBEGIN) {
-                isBEGIN = false;
-            } else {
-                switch (tracking.get(i)) {
-                    case WordLabel.O:
-                    case WordLabel.E:
-                        result += wordlist.get(i - 1).word + " ";
-                        break;
-                    case WordLabel.S:
-                    case WordLabel.I:
-                        result += wordlist.get(i - 1).word + "_";
-                        break;
-                    default:
-                        isBEGIN = true;
-                        break;
-                }
+
+            switch (tracking.get(i)) {
+                case WordLabel.O:
+                case WordLabel.E:
+                    result += wordlist.get(i).word + " ";
+                    break;
+                case WordLabel.S:
+                case WordLabel.I:
+                    result += wordlist.get(i).word + "_";
+                    break;
+                default:
+                    result += "\n";
+                    break;
             }
+            System.out.println(tracking.get(i));
         }
-        return result;
+        return result.trim();
     }
 
     public static void main(String[] args) throws IOException {
         Evaluation.Init();
         Tokenization tokenization = new Tokenization();
-        String[] sentence = {"cô", "ấy", "thích", "cầu", "thủ", "bóng", "rổ"};
-        tokenization.addSentence(sentence);
+
+        String input = "tốc độ của máy bay và";
+        String[] sentences = input.split("[';!,\\.\\?]");
+        for (String sentence : sentences) {
+            tokenization.addSentence(sentence.trim().split("\\s+"));
+        }
         System.out.println(tokenization.getTokenizedResult());
     }
 }

@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.mapdb.Fun;
 
 /**
  *
@@ -27,15 +26,14 @@ public class IOUtil {
         }
     }
 
-    public static ArrayList<Fun.Tuple2<String, Double>> ReadFile(String filename) {
-        ArrayList<Fun.Tuple2<String, Double>> lines = new ArrayList<>();
+    public static ArrayList<String> ReadFile(String filename) {
+        ArrayList<String> lines = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
                 new FileInputStream(filename), StandardCharsets.UTF_8))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (!"".equals(line)) {
-                    String[] items = line.split("\\s+");        // 3 items: w_1 w_2 value                
-                    lines.add(Fun.t2(items[0] + " " + items[1], Double.parseDouble(items[2])));
+                    lines.add(line);
                 }
             }
         } catch (FileNotFoundException ex) {
@@ -48,10 +46,6 @@ public class IOUtil {
     }
 
     public static void main(String[] args) {
-        String[] items = "abc   cd e    fds".split("\\s+");
-        for (String item : items) {
-            //System.out.println(item);
-        }
         System.out.println("abc   cd e    fds".replaceAll("\\s+", " "));
     }
 }

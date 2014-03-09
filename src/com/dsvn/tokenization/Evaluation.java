@@ -6,7 +6,7 @@
 
 package com.dsvn.tokenization;
 
-import com.dsvn.mapdb.UnigramMapDB;
+import com.dsvn.mapdb.BigramMapDB;
 
 /**
  *
@@ -14,16 +14,15 @@ import com.dsvn.mapdb.UnigramMapDB;
  */
 public class Evaluation {
     
-    static UnigramMapDB unigramMapDB;
+    static BigramMapDB bigramMapDB;
     
     public static void Init() {
-        unigramMapDB = new UnigramMapDB();
-        //unigramMapDB.CreateUnigramMap("data/MyUnigramModel.txt");
-        unigramMapDB.openDB();
+        bigramMapDB = new BigramMapDB();
+        bigramMapDB.openDB();
     }
     
     /**
-     * Eval(uni, "hôm", 1, "nay", 3) = value("nay_3 hôm_1")
+     * Eval("hôm", 1, "nay", 3) = value("hôm_1 nay_3")
      *
      * @param word1 prev word
      * @param label1
@@ -34,11 +33,11 @@ public class Evaluation {
     public static double Eval(String word1, int label1, String word2, int label2) {
         String word_1 = (label1 == WordLabel.NONE) ? word1 : word1 + "_" + label1;
         String word_2 = (label2 == WordLabel.NONE) ? word2 : word2 + "_" + label2;
-        return unigramMapDB.getMapValue(word_1, word_2);
+        return bigramMapDB.getProbability(word_1, word_2);
     }
     
     public static void Destroy() {
-        unigramMapDB.closeDB();
-        unigramMapDB = null;
+        bigramMapDB.closeDB();
+        bigramMapDB = null;
     }
 }
