@@ -38,6 +38,7 @@ public class TokenizationDemo extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         txtOutput = new javax.swing.JTextArea();
         btnTokenize = new javax.swing.JButton();
+        lbExeTime = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("DSVN Tokenization Demo");
@@ -46,13 +47,15 @@ public class TokenizationDemo extends javax.swing.JFrame {
         txtInput.setFont(new java.awt.Font("Monospaced", 0, 14)); // NOI18N
         txtInput.setLineWrap(true);
         txtInput.setRows(5);
+        txtInput.setWrapStyleWord(true);
         jScrollPane1.setViewportView(txtInput);
 
-        txtOutput.setColumns(20);
         txtOutput.setEditable(false);
+        txtOutput.setColumns(20);
         txtOutput.setFont(new java.awt.Font("Monospaced", 0, 14)); // NOI18N
         txtOutput.setLineWrap(true);
         txtOutput.setRows(5);
+        txtOutput.setWrapStyleWord(true);
         jScrollPane2.setViewportView(txtOutput);
 
         btnTokenize.setText("Tokenize");
@@ -61,6 +64,8 @@ public class TokenizationDemo extends javax.swing.JFrame {
                 btnTokenizeActionPerformed(evt);
             }
         });
+
+        lbExeTime.setText("Execution time: ");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -71,7 +76,10 @@ public class TokenizationDemo extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnTokenize))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnTokenize)
+                        .addGap(18, 18, 18)
+                        .addComponent(lbExeTime, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(24, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -80,7 +88,9 @@ public class TokenizationDemo extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(btnTokenize)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnTokenize)
+                    .addComponent(lbExeTime))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -91,12 +101,10 @@ public class TokenizationDemo extends javax.swing.JFrame {
 
     private void btnTokenizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTokenizeActionPerformed
         Tokenization tokenization = new Tokenization();
-        String result = "";
-        String[] sentences = txtInput.getText().split("[';!,\\.\\?]");
-        for (String sentence : sentences) {
-            tokenization.addSentence(sentence.split("\\s+"));
-        }
-        result = tokenization.getTokenizedResult();
+        long startTime = System.currentTimeMillis();
+        String result = tokenization.tokenize(txtInput.getText());
+        long endTime = System.currentTimeMillis();
+        lbExeTime.setText("Execution time: " + (endTime - startTime) + " ms");
         txtOutput.setText(result);
     }//GEN-LAST:event_btnTokenizeActionPerformed
 
@@ -140,6 +148,7 @@ public class TokenizationDemo extends javax.swing.JFrame {
     private javax.swing.JButton btnTokenize;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lbExeTime;
     private javax.swing.JTextArea txtInput;
     private javax.swing.JTextArea txtOutput;
     // End of variables declaration//GEN-END:variables

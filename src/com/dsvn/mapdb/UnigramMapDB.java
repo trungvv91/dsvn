@@ -6,6 +6,7 @@
 package com.dsvn.mapdb;
 
 import com.dsvn.ngrams.UnigramModel;
+import com.dsvn.util.CorpusUtil;
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -52,11 +53,8 @@ public class UnigramMapDB extends NgramsMapDB {
 
     private BTreeMap<String, Fun.Tuple2<Double, Float>> unimap;
 
-    public UnigramMapDB() {
-        DB_FILENAME = "data/unigram.mapdb";
-        MAP_NAME = "unigram_map";
-        DBFile = new File(DB_FILENAME);
-
+    public UnigramMapDB(String DB_FILENAME, String MAP_NAME) {
+        super(DB_FILENAME, MAP_NAME);
     }
 
     @Override
@@ -98,6 +96,7 @@ public class UnigramMapDB extends NgramsMapDB {
     public void openDB() {
         db = DBMaker.newFileDB(DBFile).make();
         unimap = db.getTreeMap(MAP_NAME);
+        System.out.println("there are " + unimap.size() + " items in unimap");
     }
 
     @Override
@@ -142,7 +141,7 @@ public class UnigramMapDB extends NgramsMapDB {
         closeDB();
         return data;
     }
-    
+
     @Override
     public void printMap() {
         for (Map.Entry<String, Fun.Tuple2<Double, Float>> entry : unimap.entrySet()) {
@@ -151,7 +150,8 @@ public class UnigramMapDB extends NgramsMapDB {
     }
 
     public static void main(String[] args) throws IOException {
-        UnigramMapDB bigramMapDB = new UnigramMapDB();
-        bigramMapDB.createMap("data/myUnigramModel.txt");
+        UnigramMapDB unigramMapDB = new UnigramMapDB(CorpusUtil.UNIDB_FILENAME, CorpusUtil.UNIDB_MAPNAME);
+//        unigramMapDB.createMap("data/myUnigramModel.txt");
+        unigramMapDB.openDB();
     }
 }

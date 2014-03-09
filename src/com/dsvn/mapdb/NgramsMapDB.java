@@ -20,15 +20,23 @@ public abstract class NgramsMapDB {
     /**
      * final String represents database's name
      */
-    public String DB_FILENAME;
+    protected String DB_FILENAME;
 
     /**
      * final String represents map's name
      */
-    public String MAP_NAME;
+    protected String MAP_NAME;
 
     protected File DBFile;
     protected DB db;
+
+    public NgramsMapDB(String DB_FILENAME, String MAP_NAME) {
+        this.DB_FILENAME = DB_FILENAME;
+        this.MAP_NAME = MAP_NAME;
+        DBFile = new File(DB_FILENAME);
+    }
+    
+    
 
     protected void deleteOldFile() {
         if (DBFile != null && DBFile.exists()) {

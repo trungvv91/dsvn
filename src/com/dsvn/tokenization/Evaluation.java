@@ -7,6 +7,7 @@
 package com.dsvn.tokenization;
 
 import com.dsvn.mapdb.BigramMapDB;
+import com.dsvn.util.CorpusUtil;
 
 /**
  *
@@ -17,7 +18,7 @@ public class Evaluation {
     static BigramMapDB bigramMapDB;
     
     public static void Init() {
-        bigramMapDB = new BigramMapDB();
+        bigramMapDB = new BigramMapDB(CorpusUtil.BIDB_FILENAME, CorpusUtil.BIDB_MAPNAME);
         bigramMapDB.openDB();
     }
     

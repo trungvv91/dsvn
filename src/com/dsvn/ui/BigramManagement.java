@@ -6,7 +6,7 @@ package com.dsvn.ui;
 
 import com.dsvn.mapdb.BigramMapDB;
 import com.dsvn.ngrams.BigramModel;
-import com.dsvn.ngrams.UnigramModel;
+import com.dsvn.util.CorpusUtil;
 import java.util.ArrayList;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
@@ -34,12 +34,15 @@ public class BigramManagement extends NgramsManagement {
         
         sorter = new TableRowSorter<TableModel>(model);
         tblBigram.setRowSorter(sorter);
+        
+        loadData();
     }
 
     @Override
     protected final void loadData() {
         model.setRowCount(0);
-        BigramMapDB bigramMapDB = new BigramMapDB();
+//        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.BIDB_FILENAME, "bigram_map");
+        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.BIDB_FILENAME, CorpusUtil.BIDB_MAPNAME);
         ArrayList<BigramModel> biData = bigramMapDB.getAll();
         for (BigramModel rowData : biData) {
             model.addRow(rowData.toObjects());

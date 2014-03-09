@@ -142,23 +142,28 @@ public class Tokenization {
                     result += wordlist.get(i).word + "_";
                     break;
                 default:
-                    result += "\n";
+//                    result += "\n";
+                    result += "<.> ";
                     break;
             }
             System.out.println(tracking.get(i));
         }
         return result.trim();
     }
+    
+    public String tokenize(String input) {
+        String[] sentences = input.split("[';!,\\.\\?]");
+        for (String sentence : sentences) {
+            addSentence(sentence.trim().split("\\s+"));
+        }
+        return getTokenizedResult();
+    }
 
     public static void main(String[] args) throws IOException {
         Evaluation.Init();
         Tokenization tokenization = new Tokenization();
 
-        String input = "tốc độ của máy bay và";
-        String[] sentences = input.split("[';!,\\.\\?]");
-        for (String sentence : sentences) {
-            tokenization.addSentence(sentence.trim().split("\\s+"));
-        }
-        System.out.println(tokenization.getTokenizedResult());
+        String input = "Chính phủ Việt Nam hết sức quan tâm. Thủ tướng Nguyễn Tấn Dũng trực tiếp chỉ đạo các lực lượng.";
+        System.out.println(tokenization.tokenize(input));
     }
 }

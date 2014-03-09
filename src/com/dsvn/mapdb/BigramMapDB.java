@@ -6,6 +6,7 @@
 package com.dsvn.mapdb;
 
 import com.dsvn.ngrams.BigramModel;
+import com.dsvn.util.CorpusUtil;
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -53,10 +54,8 @@ public class BigramMapDB extends NgramsMapDB {
 
     private BTreeMap<Fun.Tuple2<String, String>, Fun.Tuple2<Double, Float>> bimap;
 
-    public BigramMapDB() {
-        DB_FILENAME = "data/bigram.mapdb";
-        MAP_NAME = "bigram_map";
-        DBFile = new File(DB_FILENAME);
+    public BigramMapDB(String DB_FILENAME, String MAP_NAME) {
+        super(DB_FILENAME, MAP_NAME);
     }
 
     @Override
@@ -158,8 +157,8 @@ public class BigramMapDB extends NgramsMapDB {
     public static void main(String[] args) throws IOException {
 //        System.out.println(-Double.MAX_VALUE - 1000 == -Double.MAX_VALUE);
 
-        BigramMapDB bigramMapDB = new BigramMapDB();
-        bigramMapDB.createMap("data/myBigramModel.txt");
+        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.BIDB_FILENAME, CorpusUtil.BIDB_MAPNAME);
+//        bigramMapDB.createMap("data/myBigramModel.txt");
 
 //        bigramMapDB.openDB();
 //        BTreeMap<String, Double> map = bigramMapDB.db.getTreeMap(MAP_NAME);
