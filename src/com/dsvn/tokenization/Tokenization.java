@@ -5,6 +5,7 @@
  */
 package com.dsvn.tokenization;
 
+import com.dsvn.ngrams.WordLabel;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -163,7 +164,8 @@ public class Tokenization {
         Evaluation.Init();
         Tokenization tokenization = new Tokenization();
 
-        String input = "Chính phủ Việt Nam hết sức quan tâm. Thủ tướng Nguyễn Tấn Dũng trực tiếp chỉ đạo các lực lượng.";
+        String input = "Anh ấy sẽ làm nên sự khác biệt, chắc chắn không ít CĐV London theo chân đội bóng tới Allianz Arena đã nhủ thầm như thế.";
         System.out.println(tokenization.tokenize(input));
+        Evaluation.Destroy();
     }
 }

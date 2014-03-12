@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.mapdb.DB;
+import org.mapdb.Fun;
 
 /**
  *
@@ -35,8 +36,6 @@ public abstract class NgramsMapDB {
         this.MAP_NAME = MAP_NAME;
         DBFile = new File(DB_FILENAME);
     }
-    
-    
 
     protected void deleteOldFile() {
         if (DBFile != null && DBFile.exists()) {
@@ -46,13 +45,40 @@ public abstract class NgramsMapDB {
 
     public abstract void createMap(String filename) throws IOException;
 
+    /**
+     * Open database
+     */
     public abstract void openDB();
 
     public abstract void closeDB();
-    
+
+    public abstract boolean checkProbability();
+
+    /**
+     * DB must be opened already
+     *
+     * @param words
+     * @return
+     */
     public abstract double getProbability(String... words);
-    
+
+    /**
+     * DB must be opened already
+     *
+     * @param words
+     * @return
+     */
+    public abstract float getCount(String... words);
+
+    /**
+     * DB must be opened already
+     *
+     * @param words
+     * @return
+     */
+    public abstract Fun.Tuple2<Double, Float> getValue(String... words);
+
     public abstract ArrayList<? extends UnigramModel> getAll();
-    
+
     public abstract void printMap();
 }

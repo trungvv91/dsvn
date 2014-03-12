@@ -44,8 +44,35 @@ public class IOUtil {
 
         return lines;
     }
+    
+    public static ArrayList<String[]> ReadFileByWord(String filename) {
+        ArrayList<String[]> lines = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream(filename), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (!"".equals(line)) {
+                    lines.add(line.split("\\s+"));
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(IOUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(IOUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return lines;
+    }
 
     public static void main(String[] args) {
-        System.out.println("abc   cd e    fds".replaceAll("\\s+", " "));
+//        System.out.println("abc   cd e    fds".replaceAll("\\s+", " "));
+        double t = 0;
+        ArrayList<String[]> list = ReadFileByWord("data/myCorpus.txt");
+        for (String[] item : list) {
+            for (String string : item) {
+                t += string.hashCode();
+            }
+        }
+        System.out.println(t);
     }
 }

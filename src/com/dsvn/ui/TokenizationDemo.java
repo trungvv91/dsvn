@@ -7,6 +7,8 @@ package com.dsvn.ui;
 
 import com.dsvn.tokenization.Evaluation;
 import com.dsvn.tokenization.Tokenization;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 
 /**
  *
@@ -22,6 +24,22 @@ public class TokenizationDemo extends javax.swing.JFrame {
         initComponents();
         Evaluation.Init();
 //        tokenization = new Tokenization();
+        
+        setCenterScreen();
+    }
+    
+    protected final void setCenterScreen() {
+        // Get the size of the screen
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+
+        // Determine the new location of the window
+        int w = this.getSize().width;
+        int h = this.getSize().height;
+        int x = (dim.width - w) / 2;
+        int y = (dim.height - h) / 2;
+
+        // Move the window
+        this.setLocation(x, y);
     }
 
     /**
@@ -42,6 +60,11 @@ public class TokenizationDemo extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("DSVN Tokenization Demo");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         txtInput.setColumns(20);
         txtInput.setFont(new java.awt.Font("Monospaced", 0, 14)); // NOI18N
@@ -107,6 +130,10 @@ public class TokenizationDemo extends javax.swing.JFrame {
         lbExeTime.setText("Execution time: " + (endTime - startTime) + " ms");
         txtOutput.setText(result);
     }//GEN-LAST:event_btnTokenizeActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        Evaluation.Destroy();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

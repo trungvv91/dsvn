@@ -31,18 +31,20 @@ public class BigramManagement extends NgramsManagement {
         model.addColumn("Prob");
         model.addColumn("Count");
         tblBigram.setModel(model);
-        
+
         sorter = new TableRowSorter<TableModel>(model);
         tblBigram.setRowSorter(sorter);
-        
+
         loadData();
+
+        setCenterScreen();
     }
 
     @Override
     protected final void loadData() {
         model.setRowCount(0);
-//        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.BIDB_FILENAME, "bigram_map");
-        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.BIDB_FILENAME, CorpusUtil.BIDB_MAPNAME);
+//        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.DB_FILENAME, "bigram_map");
+        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.DB_FILENAME, CorpusUtil.BIDB_MAPNAME);
         ArrayList<BigramModel> biData = bigramMapDB.getAll();
         for (BigramModel rowData : biData) {
             model.addRow(rowData.toObjects());
@@ -78,11 +80,6 @@ public class BigramManagement extends NgramsManagement {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Bigram Management");
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowActivated(java.awt.event.WindowEvent evt) {
-                formWindowActivated(evt);
-            }
-        });
 
         tblBigram.setAutoCreateRowSorter(true);
         tblBigram.setModel(new javax.swing.table.DefaultTableModel(
@@ -169,10 +166,6 @@ public class BigramManagement extends NgramsManagement {
     private void txtSearch2CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_txtSearch2CaretUpdate
         setFilter();
     }//GEN-LAST:event_txtSearch2CaretUpdate
-
-    private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-        setCenterScreen();
-    }//GEN-LAST:event_formWindowActivated
 
     /**
      * @param args the command line arguments

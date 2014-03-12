@@ -33,14 +33,16 @@ public class UnigramManagement extends NgramsManagement {
 
         sorter = new TableRowSorter<TableModel>(model);
         tblUnigram.setRowSorter(sorter);
-        
+
         loadData();
+
+        setCenterScreen();
     }
 
     @Override
     protected final void loadData() {
         model.setRowCount(0);
-        UnigramMapDB unigramMapDB = new UnigramMapDB(CorpusUtil.UNIDB_FILENAME, CorpusUtil.UNIDB_MAPNAME);
+        UnigramMapDB unigramMapDB = new UnigramMapDB(CorpusUtil.DB_FILENAME, CorpusUtil.UNIDB_MAPNAME);
         ArrayList<? extends UnigramModel> data = unigramMapDB.getAll();
         for (UnigramModel rowData : data) {
             model.addRow(rowData.toObjects());
@@ -71,11 +73,6 @@ public class UnigramManagement extends NgramsManagement {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Unigram Management");
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowActivated(java.awt.event.WindowEvent evt) {
-                formWindowActivated(evt);
-            }
-        });
 
         jLabel1.setText("Search:");
 
@@ -135,10 +132,6 @@ public class UnigramManagement extends NgramsManagement {
     private void txtSearch1CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_txtSearch1CaretUpdate
         setFilter();
     }//GEN-LAST:event_txtSearch1CaretUpdate
-
-    private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-        setCenterScreen();
-    }//GEN-LAST:event_formWindowActivated
 
     /**
      * @param args the command line arguments

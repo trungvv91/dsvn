@@ -6,6 +6,7 @@
 package com.dsvn.mapdb;
 
 import com.dsvn.ngrams.UnigramModel;
+import com.dsvn.ngrams.WordLabel;
 import com.dsvn.util.CorpusUtil;
 import java.io.*;
 import java.util.*;
@@ -96,7 +97,7 @@ public class UnigramMapDB extends NgramsMapDB {
     public void openDB() {
         db = DBMaker.newFileDB(DBFile).make();
         unimap = db.getTreeMap(MAP_NAME);
-        System.out.println("there are " + unimap.size() + " items in unimap");
+        System.out.println("there are " + unimap.size() + " items in unimap (-1 NWORDS for metadata)");
     }
 
     @Override
@@ -106,13 +107,23 @@ public class UnigramMapDB extends NgramsMapDB {
         unimap = null;
         db = null;
     }
+    
+    @Override
+    public boolean checkProbability() {
+        openDB();
+        double p = 0.0;
+        float c = 0;
+        for (Entry<String, Fun.Tuple2<Double, Float>> entrySet : unimap.entrySet()) {
+            p += entrySet.getValue().a;
+            c += entrySet.getValue().b;
+        }
+        p -= unimap.get(WordLabel.N).a;
+        c -= unimap.get(WordLabel.N).b;
+        closeDB();
+        System.out.println("P = " + p + " ; N = " + c);
+        return Math.abs(p - 1.0) < 1e-6;
+    }
 
-    /**
-     * DB must be opened already
-     *
-     * @param words
-     * @return
-     */
     @Override
     public double getProbability(String... words) {
         double value;
@@ -120,6 +131,28 @@ public class UnigramMapDB extends NgramsMapDB {
             value = unimap.get(words[0]).a;
         } catch (Exception e) {
             value = 0;
+        }
+        return value;
+    }
+    
+    @Override
+    public float getCount(String... words) {
+        float count;
+        try {
+            count = unimap.get(words[0]).b;
+        } catch (Exception e) {
+            count = 0;
+        }
+        return count;
+    }
+    
+    @Override
+     public Fun.Tuple2<Double, Float> getValue(String... words) {
+        Fun.Tuple2<Double, Float> value;
+        try {
+            value = unimap.get(words[0]);
+        } catch (Exception e) {
+            value = null;
         }
         return value;
     }
@@ -149,9 +182,9 @@ public class UnigramMapDB extends NgramsMapDB {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        UnigramMapDB unigramMapDB = new UnigramMapDB(CorpusUtil.UNIDB_FILENAME, CorpusUtil.UNIDB_MAPNAME);
+    public static void main(String[] args) {
+        UnigramMapDB unigramMapDB = new UnigramMapDB(CorpusUtil.DB_FILENAME, CorpusUtil.UNIDB_MAPNAME);
 //        unigramMapDB.createMap("data/myUnigramModel.txt");
-        unigramMapDB.openDB();
+        System.out.println(unigramMapDB.checkProbability());
     }
 }

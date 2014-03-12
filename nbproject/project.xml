@@ -11,5 +11,16 @@
                 <root id="test.src.dir"/>
             </test-roots>
         </data>
+        <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>Bi</word>
+            <word>bimap's</word>
+            <word>dictmap</word>
+            <word>dictmap's</word>
+            <word>hôm</word>
+            <word>prev</word>
+            <word>trời</word>
+            <word>unimap's</word>
+            <word>đẹp</word>
+        </spellchecker-wordlist>
     </configuration>
 </project>

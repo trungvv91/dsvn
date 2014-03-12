@@ -6,10 +6,11 @@
 package com.dsvn.mapdb;
 
 import com.dsvn.ngrams.BigramModel;
+import com.dsvn.ngrams.WordLabel;
 import com.dsvn.util.CorpusUtil;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 import java.util.Map.Entry;
+import java.util.*;
 import org.mapdb.*;
 
 /**
@@ -99,6 +100,7 @@ public class BigramMapDB extends NgramsMapDB {
     public void openDB() {
         db = DBMaker.newFileDB(DBFile).make();
         bimap = db.getTreeMap(MAP_NAME);
+        System.out.println("there are " + bimap.size() + " items in bimap");
     }
 
     @Override
@@ -109,12 +111,23 @@ public class BigramMapDB extends NgramsMapDB {
         db = null;
     }
 
-    /**
-     * DB must be opened already
-     *
-     * @param words
-     * @return
-     */
+    @Override
+    public boolean checkProbability() {
+        openDB();
+        double p = 0.0;
+        float c = 0;
+        for (Entry<Fun.Tuple2<String, String>, Fun.Tuple2<Double, Float>> entrySet : bimap.entrySet()) {
+            p += entrySet.getValue().a;
+            c += entrySet.getValue().b;
+        }
+        System.out.println("P = " + p + " ; N = " + c);
+        BTreeMap<String, Fun.Tuple2<Double, Float>> unimap = db.getTreeMap(CorpusUtil.UNIDB_MAPNAME);
+        Fun.Tuple2<Double, Float> value = unimap.get(WordLabel.N);
+        boolean rs = (Math.abs(p + 2 - unimap.size()) < 1e-3) && (Math.abs(c + value.a - value.b)  < 1);  // p == V
+        closeDB();
+        return rs;
+    }
+
     @Override
     public double getProbability(String... words) {
         Fun.Tuple2<String, String> key = Fun.t2(words[0], words[1]);
@@ -123,6 +136,30 @@ public class BigramMapDB extends NgramsMapDB {
             value = bimap.get(key).a;
         } catch (Exception e) {
             value = 0;
+        }
+        return value;
+    }
+
+    @Override
+    public float getCount(String... words) {
+        Fun.Tuple2<String, String> key = Fun.t2(words[0], words[1]);
+        float count;
+        try {
+            count = bimap.get(key).b;
+        } catch (Exception e) {
+            count = 0;
+        }
+        return count;
+    }
+
+    @Override
+    public Fun.Tuple2<Double, Float> getValue(String... words) {
+        Fun.Tuple2<String, String> key = Fun.t2(words[0], words[1]);
+        Fun.Tuple2<Double, Float> value;
+        try {
+            value = bimap.get(key);
+        } catch (Exception e) {
+            value = null;
         }
         return value;
     }
@@ -154,11 +191,12 @@ public class BigramMapDB extends NgramsMapDB {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 //        System.out.println(-Double.MAX_VALUE - 1000 == -Double.MAX_VALUE);
 
-        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.BIDB_FILENAME, CorpusUtil.BIDB_MAPNAME);
+        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.DB_FILENAME, CorpusUtil.BIDB_MAPNAME);
 //        bigramMapDB.createMap("data/myBigramModel.txt");
+        System.out.println(bigramMapDB.checkProbability());
 
 //        bigramMapDB.openDB();
 //        BTreeMap<String, Double> map = bigramMapDB.db.getTreeMap(MAP_NAME);
