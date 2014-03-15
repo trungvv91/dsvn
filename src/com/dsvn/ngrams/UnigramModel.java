@@ -24,7 +24,7 @@ public class UnigramModel {
 
     public String word1;
     public double probability;
-    public float count;
+    public int count;
 
     public UnigramModel() {
     }
@@ -52,7 +52,7 @@ public class UnigramModel {
                     uModel.word1 = items[0];
                     uModel.probability = Double.parseDouble(items[1]);
                     if (items.length > 2) {
-                        uModel.count = Float.parseFloat(items[2]);
+                        uModel.count = Integer.parseInt(items[2]);
                     } else {
                         uModel.count = 0;
                     }

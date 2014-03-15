@@ -7,7 +7,6 @@ package com.dsvn.mapdb;
 
 import com.dsvn.ngrams.UnigramModel;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import org.mapdb.DB;
 import org.mapdb.Fun;
@@ -21,20 +20,27 @@ public abstract class NgramsMapDB {
     /**
      * final String represents database's name
      */
-    protected String DB_FILENAME;
+    public static final String DB_FILENAME = "data/ngrams.mapdb";
+    public static final File DBFile = new File(DB_FILENAME);
 
     /**
-     * final String represents map's name
+     * final String represents unimap's name
      */
-    protected String MAP_NAME;
+    public static final String UNIDB_MAPNAME = "unimap";
 
-    protected File DBFile;
+    /**
+     * final String represents bimap's name
+     */
+    public static final String BIDB_MAPNAME = "bimap";
+
+    /**
+     * String represents map's name
+     */
+    protected String mapname;
+
     protected DB db;
 
-    public NgramsMapDB(String DB_FILENAME, String MAP_NAME) {
-        this.DB_FILENAME = DB_FILENAME;
-        this.MAP_NAME = MAP_NAME;
-        DBFile = new File(DB_FILENAME);
+    public NgramsMapDB() {
     }
 
     protected void deleteOldFile() {
@@ -42,8 +48,6 @@ public abstract class NgramsMapDB {
             DBFile.delete();
         }
     }
-
-    public abstract void createMap(String filename) throws IOException;
 
     /**
      * Open database
@@ -76,7 +80,7 @@ public abstract class NgramsMapDB {
      * @param words
      * @return
      */
-    public abstract Fun.Tuple2<Double, Float> getValue(String... words);
+    public abstract Fun.Tuple2<Double, Integer> getValue(String... words);
 
     public abstract ArrayList<? extends UnigramModel> getAll();
 

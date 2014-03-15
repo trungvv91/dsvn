@@ -7,8 +7,6 @@ package com.dsvn.mapdb;
 
 import com.dsvn.ngrams.UnigramModel;
 import com.dsvn.ngrams.WordLabel;
-import com.dsvn.util.CorpusUtil;
-import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import org.mapdb.*;
@@ -17,7 +15,7 @@ import org.mapdb.*;
  *
  * @author TRUNG
  */
-class UniIterator implements Iterator<Fun.Tuple2<String, Fun.Tuple2<Double, Float>>> {
+class UniIterator implements Iterator<Fun.Tuple2<String, Fun.Tuple2<Double, Integer>>> {
 
     /**
      * max number of elements to import
@@ -36,10 +34,10 @@ class UniIterator implements Iterator<Fun.Tuple2<String, Fun.Tuple2<Double, Floa
     }
 
     @Override
-    public Fun.Tuple2<String, Fun.Tuple2<Double, Float>> next() {
+    public Fun.Tuple2<String, Fun.Tuple2<Double, Integer>> next() {
         UnigramModel uModel = list.get(counter);
-        Fun.Tuple2<Double, Float> value = Fun.t2(uModel.probability, uModel.count);
-        Fun.Tuple2<String, Fun.Tuple2<Double, Float>> next = Fun.t2(uModel.word1, value);
+        Fun.Tuple2<Double, Integer> value = Fun.t2(uModel.probability, uModel.count);
+        Fun.Tuple2<String, Fun.Tuple2<Double, Integer>> next = Fun.t2(uModel.word1, value);
         counter++;
         return next;
     }
@@ -52,52 +50,19 @@ class UniIterator implements Iterator<Fun.Tuple2<String, Fun.Tuple2<Double, Floa
 
 public class UnigramMapDB extends NgramsMapDB {
 
-    private BTreeMap<String, Fun.Tuple2<Double, Float>> unimap;
+    private BTreeMap<String, Fun.Tuple2<Double, Integer>> unimap;
 
-    public UnigramMapDB(String DB_FILENAME, String MAP_NAME) {
-        super(DB_FILENAME, MAP_NAME);
-    }
-
-    @Override
-    public void createMap(String filename) throws IOException {
-        deleteOldFile();
-
-        /**
-         * Open database, disabling Write Ahead Log makes import much faster
-         */
-        db = DBMaker.newFileDB(DBFile).transactionDisable().make();
-
-        long time = System.currentTimeMillis();
-
-        Iterator<Fun.Tuple2<String, Fun.Tuple2<Double, Float>>> source = new UniIterator(UnigramModel.readRawUnigramFile(filename));
-
-        /**
-         * BTreeMap Data Pump requires data source to be pre-sorted in reverse
-         * order (highest to lowest). There is method in Data Pump we can use to
-         * sort data. It uses temporarily files and can handle fairly large data
-         * sets.
-         */
-        source = Pump.sort(source,
-                true, 100000,
-                Collections.reverseOrder(BTreeMap.COMPARABLE_COMPARATOR), //reverse  order comparator
-                db.getDefaultSerializer());
-
-        /**
-         * Create BTreeMap and fill it with data
-         */
-        unimap = db.createTreeMap(MAP_NAME).pumpSource(source) //.pumpPresort(100000) // for presorting data we could also use this method
-                .keySerializer(BTreeKeySerializer.STRING).make();
-
-        System.out.println("Finished; total time: " + (System.currentTimeMillis() - time) / 1000 + "s; there are " + unimap.size() + " items in map");
-
-        closeDB();
+    public UnigramMapDB() {
+        this.mapname = NgramsMapDB.UNIDB_MAPNAME;
     }
 
     @Override
     public void openDB() {
-        db = DBMaker.newFileDB(DBFile).make();
-        unimap = db.getTreeMap(MAP_NAME);
-        System.out.println("there are " + unimap.size() + " items in unimap (-1 NWORDS for metadata)");
+        if (db == null || unimap == null) {
+            db = DBMaker.newFileDB(DBFile).make();
+            unimap = db.getTreeMap(mapname);
+            System.out.println("there are " + unimap.size() + " items in unimap (-1 NWORDS for metadata)");
+        }
     }
 
     @Override
@@ -107,13 +72,13 @@ public class UnigramMapDB extends NgramsMapDB {
         unimap = null;
         db = null;
     }
-    
+
     @Override
     public boolean checkProbability() {
         openDB();
         double p = 0.0;
         float c = 0;
-        for (Entry<String, Fun.Tuple2<Double, Float>> entrySet : unimap.entrySet()) {
+        for (Entry<String, Fun.Tuple2<Double, Integer>> entrySet : unimap.entrySet()) {
             p += entrySet.getValue().a;
             c += entrySet.getValue().b;
         }
@@ -134,7 +99,7 @@ public class UnigramMapDB extends NgramsMapDB {
         }
         return value;
     }
-    
+
     @Override
     public float getCount(String... words) {
         float count;
@@ -145,10 +110,10 @@ public class UnigramMapDB extends NgramsMapDB {
         }
         return count;
     }
-    
+
     @Override
-     public Fun.Tuple2<Double, Float> getValue(String... words) {
-        Fun.Tuple2<Double, Float> value;
+    public Fun.Tuple2<Double, Integer> getValue(String... words) {
+        Fun.Tuple2<Double, Integer> value;
         try {
             value = unimap.get(words[0]);
         } catch (Exception e) {
@@ -160,13 +125,13 @@ public class UnigramMapDB extends NgramsMapDB {
     @Override
     public ArrayList<UnigramModel> getAll() {
         openDB();
-        Set<Entry<String, Fun.Tuple2<Double, Float>>> entrySet = unimap.entrySet();
+        Set<Entry<String, Fun.Tuple2<Double, Integer>>> entrySet = unimap.entrySet();
 
         ArrayList<UnigramModel> data = new ArrayList<>();
-        for (Map.Entry<String, Fun.Tuple2<Double, Float>> entry : entrySet) {
+        for (Map.Entry<String, Fun.Tuple2<Double, Integer>> entry : entrySet) {
             UnigramModel uModel = new UnigramModel();
             uModel.word1 = entry.getKey();
-            Fun.Tuple2<Double, Float> value = entry.getValue();
+            Fun.Tuple2<Double, Integer> value = entry.getValue();
             uModel.probability = value.a;
             uModel.count = value.b;
             data.add(uModel);
@@ -177,13 +142,13 @@ public class UnigramMapDB extends NgramsMapDB {
 
     @Override
     public void printMap() {
-        for (Map.Entry<String, Fun.Tuple2<Double, Float>> entry : unimap.entrySet()) {
+        for (Map.Entry<String, Fun.Tuple2<Double, Integer>> entry : unimap.entrySet()) {
             System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue().toString());
         }
     }
 
     public static void main(String[] args) {
-        UnigramMapDB unigramMapDB = new UnigramMapDB(CorpusUtil.DB_FILENAME, CorpusUtil.UNIDB_MAPNAME);
+        UnigramMapDB unigramMapDB = new UnigramMapDB();
 //        unigramMapDB.createMap("data/myUnigramModel.txt");
         System.out.println(unigramMapDB.checkProbability());
     }

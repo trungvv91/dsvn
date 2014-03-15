@@ -49,7 +49,7 @@ public class BigramModel extends UnigramModel {
                     bModel.word2 = items[0];
                     bModel.probability = Double.parseDouble(items[2]);
                     if (items.length > 3) {
-                        bModel.count = Float.parseFloat(items[3]);
+                        bModel.count = Integer.parseInt(items[3]);
                     } else {
                         bModel.count = 0;
                     }

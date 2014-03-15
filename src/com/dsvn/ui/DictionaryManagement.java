@@ -4,9 +4,8 @@
  */
 package com.dsvn.ui;
 
-import com.dsvn.mapdb.DictionaryMapDB;
-import com.dsvn.ngrams.DictionaryModel;
-import com.dsvn.util.CorpusUtil;
+import com.dsvn.dict.DictionaryMapDB;
+import com.dsvn.dict.DictionaryModel;
 import java.util.ArrayList;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
@@ -183,8 +182,8 @@ public class DictionaryManagement extends NgramsManagement {
     @Override
     protected final void loadData() {
         model.setRowCount(0);
-//        BigramMapDB bigramMapDB = new BigramMapDB(CorpusUtil.DB_FILENAME, "bigram_map");
-        DictionaryMapDB dictMapDB = new DictionaryMapDB(CorpusUtil.DICTDB_FILENAME, "dsvnDict");
+//        BigramMapDB bigramMapDB = new BigramMapNgramsMapDBtil.DB_FILENAME, "bigram_map");
+        DictionaryMapDB dictMapDB = new DictionaryMapDB("dsvn");
         ArrayList<DictionaryModel> dictData = dictMapDB.getAll();
         for (DictionaryModel rowData : dictData) {
             model.addRow(rowData.toObjects());

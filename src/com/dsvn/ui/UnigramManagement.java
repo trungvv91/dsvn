@@ -7,7 +7,6 @@ package com.dsvn.ui;
 
 import com.dsvn.mapdb.UnigramMapDB;
 import com.dsvn.ngrams.UnigramModel;
-import com.dsvn.util.CorpusUtil;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -42,7 +41,7 @@ public class UnigramManagement extends NgramsManagement {
     @Override
     protected final void loadData() {
         model.setRowCount(0);
-        UnigramMapDB unigramMapDB = new UnigramMapDB(CorpusUtil.DB_FILENAME, CorpusUtil.UNIDB_MAPNAME);
+        UnigramMapDB unigramMapDB = new UnigramMapDB();
         ArrayList<? extends UnigramModel> data = unigramMapDB.getAll();
         for (UnigramModel rowData : data) {
             model.addRow(rowData.toObjects());

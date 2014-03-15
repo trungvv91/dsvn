@@ -7,10 +7,9 @@
 package com.dsvn.tokenization;
 
 import com.dsvn.mapdb.BigramMapDB;
-import com.dsvn.mapdb.DictionaryMapDB;
+import com.dsvn.dict.DictionaryMapDB;
 import com.dsvn.mapdb.UnigramMapDB;
 import com.dsvn.ngrams.WordLabel;
-import com.dsvn.util.CorpusUtil;
 
 /**
  *
@@ -23,9 +22,9 @@ public class Evaluation {
     static DictionaryMapDB dictMapDB;
     
     public static void Init() {
-        unigramMapDB = new UnigramMapDB(CorpusUtil.DB_FILENAME, CorpusUtil.UNIDB_MAPNAME);
-        bigramMapDB = new BigramMapDB(CorpusUtil.DB_FILENAME, CorpusUtil.BIDB_MAPNAME);
-        dictMapDB = new DictionaryMapDB(CorpusUtil.DICTDB_FILENAME, "dsvnDict");
+        unigramMapDB = new UnigramMapDB();
+        bigramMapDB = new BigramMapDB();
+        dictMapDB = new DictionaryMapDB("dsvnDict");
         unigramMapDB.openDB();
         bigramMapDB.openDB();
         dictMapDB.openDB();

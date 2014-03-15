@@ -13,13 +13,27 @@
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
             <word>Bi</word>
+            <word>bigram</word>
             <word>bimap's</word>
+            <word>bắt</word>
             <word>dictmap</word>
             <word>dictmap's</word>
+            <word>dictname</word>
+            <word>hiện</word>
             <word>hôm</word>
+            <word>kn</word>
+            <word>Kneser</word>
+            <word>là</word>
+            <word>lần</word>
             <word>prev</word>
+            <word>số</word>
             <word>trời</word>
+            <word>txt</word>
+            <word>Tính</word>
             <word>unimap's</word>
+            <word>và</word>
+            <word>xuất</word>
+            <word>đầu</word>
             <word>đẹp</word>
         </spellchecker-wordlist>
     </configuration>
