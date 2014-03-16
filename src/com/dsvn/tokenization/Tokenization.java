@@ -167,7 +167,7 @@ public class Tokenization {
         Evaluation.Init();
         Tokenization tokenization = new Tokenization();
 
-        String input = "Anh ấy sẽ làm nên sự khác biệt, chắc chắn không ít CĐV London theo chân đội bóng tới Allianz Arena đã nhủ thầm như thế.";
+        String input = "Allianz Arena đã nổ tung vì sung sướng.";
         System.out.println(tokenization.tokenize(input));
         Evaluation.Destroy();
     }

@@ -33,13 +33,6 @@ public class DictionaryMapDB extends MapDBModel<Fun.Tuple2<String, String>, Inte
     }
     
     @Override
-    protected void deleteOldFile() {
-        if (DictDBFile != null && DictDBFile.exists()) {
-            DictDBFile.delete();
-        }
-    }
-    
-    @Override
     public void openDB() {
         if (db == null || map == null) {
             db = DBMaker.newFileDB(DictDBFile).make();

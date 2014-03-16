@@ -4,7 +4,7 @@
  */
 package com.dsvn.ui;
 
-import com.dsvn.smoothing.KneserNeyMapDB;
+import com.dsvn.smoothing.BiKNMapDB;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -180,7 +180,7 @@ public class SmoothedManagement extends MapDBManagement {
     @Override
     protected final void loadData() {
         model.setRowCount(0);
-        KneserNeyMapDB dictMapDB = new KneserNeyMapDB();
+        BiKNMapDB dictMapDB = new BiKNMapDB();
         ArrayList<Object[]> dictData = dictMapDB.getAll();
         for (Object[] rowData : dictData) {
             model.addRow(rowData);

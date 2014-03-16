@@ -50,7 +50,7 @@ public abstract class MapDBModel<K, V> {
     protected DB db;
     protected BTreeMap<K, V> map;
 
-    protected void deleteOldFile() {
+    private static void deleteOldFile() {
         if (DBFile != null && DBFile.exists()) {
             DBFile.delete();
         }
@@ -95,7 +95,6 @@ public abstract class MapDBModel<K, V> {
      * @param corpusPath
      */
     public static void CreateDBFromCorpus(String corpusPath) {
-
         final BTreeMap<String, Integer> tempUnimap = DBMaker.newTempTreeMap();
         final BTreeMap<Fun.Tuple2<String, String>, Integer> tempBimap = DBMaker.newTempTreeMap();
 
@@ -129,14 +128,9 @@ public abstract class MapDBModel<K, V> {
         }
         tempUnimap.put(WordLabel.END, nlines);
         System.out.println("there are " + nwords + " words in corpus");
-//        System.out.println("there are " + tempUnimap.size() + " items in tempUnimap");
-//        System.out.println("there are " + tempBimap.size() + " items in tempBimap");
 
-        File dbFile = new File(MapDBModel.DB_FILENAME);
-        if (dbFile.exists()) {
-            dbFile.delete();
-        }
-        DB db = DBMaker.newFileDB(dbFile).transactionDisable().make();
+        deleteOldFile();
+        DB db = DBMaker.newFileDB(DBFile).transactionDisable().make();
 
         final double N = nwords;
         Iterator<String> uniSource = tempUnimap.keySet().iterator();

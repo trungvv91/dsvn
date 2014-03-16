@@ -8,6 +8,7 @@ package com.dsvn.smoothing;
 import com.dsvn.ngrams.BigramMapDB;
 import com.dsvn.mapdb.MapDBModel;
 import com.dsvn.ngrams.UnigramMapDB;
+import com.dsvn.wordtoken.WordLabel;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,6 +29,11 @@ import org.mapdb.Pump;
 public class KneserNey {
 
     /**
+     * final String represents kn-unimap's name
+     */
+    public static final String UNIKN_MAPNAME = "unimap_kn";
+    
+    /**
      * final String represents kn-bimap's name
      */
     public static final String BIKN_MAPNAME = "bimap_kn";
@@ -38,12 +44,12 @@ public class KneserNey {
     ConcurrentNavigableMap<String, Fun.Tuple2> unimap;
     ConcurrentNavigableMap<Fun.Tuple2, Fun.Tuple2> bimap;
     ConcurrentNavigableMap<Fun.Tuple2, Double> bikn;
-    Map<String, Fun.Tuple2<Double, Integer>> unikn;
+    ConcurrentNavigableMap<String, Fun.Tuple2<Double, Double>> unikn;
 
     double[] D = new double[4];      // D_1, ... , D_3+;
 
     public KneserNey() {
-        db = DBMaker.newFileDB(MapDBModel.DBFile).make();
+        db = DBMaker.newFileDB(MapDBModel.DBFile).transactionDisable().make();
         unimap = db.getTreeMap(MapDBModel.UNIDB_MAPNAME);
         bimap = db.getTreeMap(MapDBModel.BIDB_MAPNAME);
         setD();
@@ -79,53 +85,61 @@ public class KneserNey {
     private int[] N(String w1) {
         int[] N = new int[4];
 
-//        ConcurrentNavigableMap<Fun.Tuple2, Fun.Tuple2> subMap = bimap.subMap(Fun.t2(null, w1), Fun.t2(Fun.HI, w1));
         ConcurrentNavigableMap<Fun.Tuple2, Fun.Tuple2> subMap = bimap.subMap(Fun.t2(w1, null), Fun.t2(w1, Fun.HI));
-//        ConcurrentNavigableMap<Fun.Tuple2<String, String>, Fun.Tuple2<Double, Integer>> subMap = bimap.subMap(Fun.t2(w1, (String)null), Fun.t2(w1, (String)Fun.HI));
         for (Fun.Tuple2<Double, Integer> value : subMap.values()) {
             if (value.b < 3) {
                 N[value.b] += 1;
             } else {
                 N[3] += 1;
             }
-//            N[0] += value.b;
         }
         return N;
     }
 
     private void createNewUnikn() {
-        if (unikn != null) {
-            unikn.clear();
-            unikn = null;
+        if (db.exists(UNIKN_MAPNAME)) {
+            db.getTreeMap(UNIKN_MAPNAME).clear();
+            db.delete(UNIKN_MAPNAME);
         }
-        unikn = new HashMap<>();
 
+        unikn = db.createTreeMap(UNIKN_MAPNAME).keySerializer(BTreeKeySerializer.STRING).make();;
         // set gamma w_{i-1}
         for (String w1 : unimap.keySet()) {
+            if (w1.equals(WordLabel.N)) {
+                continue;
+            }
             int[] N = N(w1);
             double gamma = 0.0;
             for (int i = 1; i < N.length; i++) {
                 gamma += (D[i] * N[i]);
             }
             gamma /= ((int) unimap.get(w1).b);
-            unikn.put(w1, Fun.t2(gamma, 0));
+            unikn.put(w1, Fun.t2(gamma, 0.0));
         }
 
         // set P_KN w_i
         for (Fun.Tuple2 bikey : bimap.keySet()) {
             String w2 = bikey.b.toString();
-            Fun.Tuple2<Double, Integer> value = unikn.get(w2);
+            Fun.Tuple2<Double, Double> value = unikn.get(w2);
             unikn.put(w2, Fun.t2(value.a, value.b + 1));
         }
+        int bisize = bimap.size();
+        for (String w1 : unikn.keySet()) {
+            Fun.Tuple2<Double, Double> value = unikn.get(w1);
+            unikn.put(w1, Fun.t2(value.a, value.b / bisize));
+        }
+        
+        System.out.println("there are " + unikn.size() + " items in unikn map");
     }
 
     private void createNewBikn() {
         if (db.exists(BIKN_MAPNAME)) {
+            db.getTreeMap(BIKN_MAPNAME).clear();
             db.delete(BIKN_MAPNAME);
         }
-        final int bisize = bimap.size();
-        Iterator<Fun.Tuple2> biSource = bimap.keySet().iterator();
-        biSource = Pump.sort(biSource, true, 100000,
+        
+        Iterator<Fun.Tuple2> knSource = bimap.keySet().iterator();
+        knSource = Pump.sort(knSource, true, 100000,
                 Collections.reverseOrder(BTreeMap.COMPARABLE_COMPARATOR), db.getDefaultSerializer());
         Fun.Function1<Double, Fun.Tuple2> bivalueExtractor = new Fun.Function1<Double, Fun.Tuple2>() {
             @Override
@@ -135,14 +149,13 @@ public class KneserNey {
                 int c = (c_12 >= 3) ? 3 : c_12;
                 double prob = (c_12 - D[c]) / c_1;
                 double gamma = unikn.get(key.a.toString()).a;
-                int Ni = unikn.get(key.b.toString()).b;
-                prob += gamma * Ni / bisize;
-//                System.out.println(prob);
+                double p_unikn = unikn.get(key.b.toString()).b;
+                prob += gamma * p_unikn;
                 return prob;
             }
         };
         bikn = db.createTreeMap(BIKN_MAPNAME)
-                .pumpSource(biSource, bivalueExtractor) //.pumpPresort(100000) // for presorting data we could also use this method
+                .pumpSource(knSource, bivalueExtractor) //.pumpPresort(100000) // for presorting data we could also use this method
                 .keySerializer(BTreeKeySerializer.TUPLE2)
                 .make();
 

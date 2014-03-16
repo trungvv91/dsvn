@@ -14,6 +14,10 @@ public final class WordLabel {
     public static final String START = "<START>";
     public static final String END = "<END>";
     public static final String UNKNOWN = "XXX_0";
+    
+    /**
+     * Metadata store the total numbers of lines and words already read
+     */
     public static final String N = "NWORDS";
 
     public static final int NUMBER_OF_LABELS = 4;
