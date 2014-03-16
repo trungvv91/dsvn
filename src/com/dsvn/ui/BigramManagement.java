@@ -4,10 +4,8 @@
  */
 package com.dsvn.ui;
 
-import com.dsvn.mapdb.BigramMapDB;
-import com.dsvn.ngrams.BigramModel;
+import com.dsvn.ngrams.BigramMapDB;
 import java.util.ArrayList;
-import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -16,7 +14,7 @@ import javax.swing.table.TableRowSorter;
  *
  * @author trung
  */
-public class BigramManagement extends NgramsManagement {
+public class BigramManagement extends MapDBManagement {
 
     /**
      * Creates new form BigramManagement
@@ -44,19 +42,25 @@ public class BigramManagement extends NgramsManagement {
         model.setRowCount(0);
 //        BigramMapDB bigramMapDB = new BigramMapDB(NgramsMapDB.DB_FILENAME, "bigram_map");
         BigramMapDB bigramMapDB = new BigramMapDB();
-        ArrayList<BigramModel> biData = bigramMapDB.getAll();
-        for (BigramModel rowData : biData) {
-            model.addRow(rowData.toObjects());
+        ArrayList<Object[]> biData = bigramMapDB.getAll();
+        for (Object[] rowData : biData) {
+            model.addRow(rowData);
         }
         lbStatus.setText("Col No.  " + model.getRowCount());
     }
 
-    @Override
     protected void setFilter() {
-        ArrayList<RowFilter<TableModel, Object>> filters = new ArrayList<>();
-        filters.add(getFilter(txtSearch1.getText(), 0));
-        filters.add(getFilter(txtSearch2.getText(), 1));
-        sorter.setRowFilter(RowFilter.andFilter(filters));
+//        ArrayList<RowFilter<TableModel, Object>> filters = new ArrayList<>();
+//        RowFilter<TableModel, Object> filter1 = getFilter(txtSearch1.getText(), 0);
+//        if (filter1 != null) {
+//            filters.add(filter1);
+//        }
+//        RowFilter<TableModel, Object> filter2 = getFilter(txtSearch2.getText(), 1);
+//        if (filter2 != null) {
+//            filters.add(filter2);
+//        }
+//        sorter.setRowFilter(getFilter(txtSearch1.getText(), txtSearch2.getText()));
+        super.setFilter(txtSearch1.getText(), txtSearch2.getText());
         lbStatus.setText("Col No.  " + tblBigram.getRowCount() + " / " + model.getRowCount());
     }
 

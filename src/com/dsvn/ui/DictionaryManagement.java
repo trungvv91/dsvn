@@ -5,9 +5,7 @@
 package com.dsvn.ui;
 
 import com.dsvn.dict.DictionaryMapDB;
-import com.dsvn.dict.DictionaryModel;
 import java.util.ArrayList;
-import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -16,7 +14,7 @@ import javax.swing.table.TableRowSorter;
  *
  * @author trung
  */
-public class DictionaryManagement extends NgramsManagement {
+public class DictionaryManagement extends MapDBManagement {
 
     /**
      * Creates new form DictionaryManagement
@@ -33,7 +31,6 @@ public class DictionaryManagement extends NgramsManagement {
         tblDictionary.setRowSorter(sorter);
 
         loadData();
-
         setCenterScreen();
     }
 
@@ -55,6 +52,7 @@ public class DictionaryManagement extends NgramsManagement {
         tblDictionary = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Dictionary Management");
 
         jLabel1.setText("Search 1:");
 
@@ -182,21 +180,16 @@ public class DictionaryManagement extends NgramsManagement {
     @Override
     protected final void loadData() {
         model.setRowCount(0);
-//        BigramMapDB bigramMapDB = new BigramMapNgramsMapDBtil.DB_FILENAME, "bigram_map");
         DictionaryMapDB dictMapDB = new DictionaryMapDB("dsvn");
-        ArrayList<DictionaryModel> dictData = dictMapDB.getAll();
-        for (DictionaryModel rowData : dictData) {
-            model.addRow(rowData.toObjects());
+        ArrayList<Object[]> dictData = dictMapDB.getAll();
+        for (Object[] rowData : dictData) {
+            model.addRow(rowData);
         }
         lbStatus.setText("Col No.  " + model.getRowCount());
     }
 
-    @Override
     protected void setFilter() {
-        ArrayList<RowFilter<TableModel, Object>> filters = new ArrayList<>();
-        filters.add(getFilter(txtSearch1.getText(), 0));
-        filters.add(getFilter(txtSearch2.getText(), 1));
-        sorter.setRowFilter(RowFilter.andFilter(filters));
+        super.setFilter(txtSearch1.getText(), txtSearch2.getText());
         lbStatus.setText("Col No.  " + tblDictionary.getRowCount() + " / " + model.getRowCount());
     }
 }

@@ -4,6 +4,7 @@
  */
 package com.dsvn.dict;
 
+import com.dsvn.mapdb.MapDBModel;
 import com.dsvn.util.IOUtil;
 import java.io.File;
 import java.util.ArrayList;
@@ -19,37 +20,84 @@ import org.mapdb.Fun;
  *
  * @author trung
  */
-public class DictionaryMapDB {
+public class DictionaryMapDB extends MapDBModel<Fun.Tuple2<String, String>, Integer> {
 
     /**
-     * final String represents dictmap's name
+     * final String represents dictmap's database filename
      */
     public static final String DICTDB_FILENAME = "data/dict.mapdb";
-    public static final File DBFile = new File(DICTDB_FILENAME);
-
-    private BTreeMap<Fun.Tuple2<String, String>, Integer> dictmap;
-    protected String mapname;
-    protected DB dictDB;
+    public static final File DictDBFile = new File(DICTDB_FILENAME);
 
     public DictionaryMapDB(String mapname) {
         this.mapname = mapname;
     }
+    
+    @Override
+    protected void deleteOldFile() {
+        if (DictDBFile != null && DictDBFile.exists()) {
+            DictDBFile.delete();
+        }
+    }
+    
+    @Override
+    public void openDB() {
+        if (db == null || map == null) {
+            db = DBMaker.newFileDB(DictDBFile).make();
+            map = db.getTreeMap(mapname);
+        }
+        System.out.println("there are " + map.size() + " items in map");
+    }
+
+    @Override
+    public boolean checkProbability() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Integer getValue(String... words) {
+        Fun.Tuple2<String, String> key = Fun.t2(words[0], words[1]);
+        Integer value;
+        try {
+            value = map.get(key);
+        } catch (Exception e) {
+            value = null;
+        }
+        return value;
+    }
+
+    @Override
+    public void printMap() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ArrayList<Object[]> getAll() {
+        ArrayList<Object[]> data = new ArrayList<>();
+        openDB();
+        Set<Map.Entry<Fun.Tuple2<String, String>, Integer>> entrySet = map.entrySet();
+        for (Map.Entry<Fun.Tuple2<String, String>, Integer> entry : entrySet) {
+            Fun.Tuple2<String, String> key = entry.getKey();
+            Object[] dictModel = new Object[]{key.a, key.b, entry.getValue()};
+            data.add(dictModel);
+        }
+        closeDB();
+        return data;
+    }
 
     /**
-     * Add words from a txt file to a dictionary map in database. Assumed each line in
-     * Dictionary file is a word. If the map's name (dictname) has already
-     * existed, words are added to this map, else a new map is created
+     * Add words from a txt file to a dictionary map in database. Assumed each
+     * line in Dictionary file is a word. If the map's name (dictname) has
+     * already existed, words are added to this map, else a new map is created
      * automatically.
      *
      * @param dictPath
      * @param dictname
      * @param isLabeled indicate whether words is labeled
      */
-    public static void addDictionary(String dictPath, String dictname, boolean isLabeled) {
-        DB db = DBMaker.newFileDB(DBFile).transactionDisable().make();
+    public static void AddDictionary(String dictPath, String dictname, boolean isLabeled) {
+        DB db = DBMaker.newFileDB(DictDBFile).transactionDisable().make();
         BTreeMap<Fun.Tuple2<String, String>, Integer> dictmap;
         if (db.exists(dictname)) {
-//            System.out.println("exist");
 //            db.delete(dictname);
             dictmap = db.getTreeMap(dictname);
         } else {
@@ -107,67 +155,12 @@ public class DictionaryMapDB {
         db.close();
     }
 
-    public void openDB() {
-        if (dictDB == null || dictmap == null) {
-            dictDB = DBMaker.newFileDB(DBFile).make();
-            dictmap = dictDB.getTreeMap(mapname);
-            System.out.println("there are " + dictmap.size() + " items in dictmap");
-        }
-    }
-
-    public void closeDB() {
-        dictDB.close();
-        dictmap = null;
-        dictDB = null;
-    }
-
-    /**
-     * DB must be opened already
-     *
-     * @param words
-     * @return
-     */
-    public float getCount(String... words) {
-//        boolean isClosed = false;
-//        if (dictDB.isClosed()) {
-//            isClosed = true;
-//            openDB();
-//        }
-        Fun.Tuple2<String, String> key = Fun.t2(words[0], words[1]);
-        float count;
-        try {
-            count = dictmap.get(key);
-        } catch (Exception e) {
-            count = 0;
-        }
-//        if (isClosed) {
-//            closeDB();
-//        }
-        return count;
-    }
-
-    public ArrayList<DictionaryModel> getAll() {
-        openDB();
-        Set<Map.Entry<Fun.Tuple2<String, String>, Integer>> entrySet = dictmap.entrySet();
-
-        ArrayList<DictionaryModel> data = new ArrayList<>();
-        for (Map.Entry<Fun.Tuple2<String, String>, Integer> entry : entrySet) {
-            Fun.Tuple2<String, String> key = entry.getKey();
-            DictionaryModel dictModel = new DictionaryModel();
-            dictModel.word1 = key.a;
-            dictModel.word2 = key.b;
-            dictModel.count = entry.getValue();
-            data.add(dictModel);
-        }
-        closeDB();
-        return data;
-    }
-
     public static void main(String[] args) {
-//        DictionaryMapDB.addDictionary("data/DSVNDict.txt", "dsvnDict", false);
+//        DictionaryMapDB.AddDictionary("data/DSVNDict.txt", "dsvnDict", false);
         DictionaryMapDB dictMapDB = new DictionaryMapDB("dsvnDict");
         dictMapDB.openDB();
-        System.out.println(dictMapDB.getCount("Nguyễn_1", "Tấn_2"));
+        System.out.println(dictMapDB.getValue("Nguyễn_1", "Tấn_2"));
         dictMapDB.closeDB();
     }
+
 }

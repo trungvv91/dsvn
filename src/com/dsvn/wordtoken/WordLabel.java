@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package com.dsvn.ngrams;
+package com.dsvn.wordtoken;
 
 /**
  *

@@ -1,11 +1,10 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
 package com.dsvn.ui;
 
-import com.dsvn.ngrams.UnigramMapDB;
+import com.dsvn.smoothing.KneserNeyMapDB;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -13,45 +12,26 @@ import javax.swing.table.TableRowSorter;
 
 /**
  *
- * @author TRUNG
+ * @author trung
  */
-public class UnigramManagement extends MapDBManagement {
+public class SmoothedManagement extends MapDBManagement {
 
     /**
-     * Creates new form UnigramManagement
+     * Creates new form DictionaryManagement
      */
-    public UnigramManagement() {
+    public SmoothedManagement() {
         initComponents();
-
         model = new DefaultTableModel();
         model.addColumn("Word1");
-        model.addColumn("Prob");
-        model.addColumn("Count");
-        tblUnigram.setModel(model);
+        model.addColumn("Word2");
+        model.addColumn("P_KN");
+        tblSmoothed.setModel(model);
 
         sorter = new TableRowSorter<TableModel>(model);
-        tblUnigram.setRowSorter(sorter);
+        tblSmoothed.setRowSorter(sorter);
 
         loadData();
-
         setCenterScreen();
-    }
-
-    @Override
-    protected final void loadData() {
-        model.setRowCount(0);
-        UnigramMapDB unigramMapDB = new UnigramMapDB();
-        ArrayList<Object[]> data = unigramMapDB.getAll();
-        for (Object[] rowData : data) {
-            model.addRow(rowData);
-        }
-        lbStatus.setText("Col No.  " + model.getRowCount());
-    }
-
-    protected void setFilter() {
-//        sorter.setRowFilter(getFilter(txtSearch1.getText()));
-        super.setFilter(txtSearch1.getText());
-        lbStatus.setText("Col No.  " + tblUnigram.getRowCount() + " / " + model.getRowCount());
     }
 
     /**
@@ -65,14 +45,16 @@ public class UnigramManagement extends MapDBManagement {
 
         jLabel1 = new javax.swing.JLabel();
         txtSearch1 = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblUnigram = new javax.swing.JTable();
+        txtSearch2 = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
         lbStatus = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblSmoothed = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Unigram Management");
+        setTitle("Smoothed Bigram Management");
 
-        jLabel1.setText("Search:");
+        jLabel1.setText("Search 1:");
 
         txtSearch1.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
@@ -80,7 +62,17 @@ public class UnigramManagement extends MapDBManagement {
             }
         });
 
-        tblUnigram.setModel(new javax.swing.table.DefaultTableModel(
+        txtSearch2.addCaretListener(new javax.swing.event.CaretListener() {
+            public void caretUpdate(javax.swing.event.CaretEvent evt) {
+                txtSearch2CaretUpdate(evt);
+            }
+        });
+
+        jLabel2.setText("Search 2:");
+
+        lbStatus.setText("No. Col:");
+
+        tblSmoothed.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -91,9 +83,7 @@ public class UnigramManagement extends MapDBManagement {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(tblUnigram);
-
-        lbStatus.setText("No. Col:");
+        jScrollPane1.setViewportView(tblSmoothed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -102,13 +92,17 @@ public class UnigramManagement extends MapDBManagement {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 735, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtSearch1, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtSearch1, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtSearch2, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(lbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 656, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -116,8 +110,10 @@ public class UnigramManagement extends MapDBManagement {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
                     .addComponent(txtSearch1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtSearch2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lbStatus))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1)
@@ -131,14 +127,22 @@ public class UnigramManagement extends MapDBManagement {
         setFilter();
     }//GEN-LAST:event_txtSearch1CaretUpdate
 
+    private void txtSearch2CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_txtSearch2CaretUpdate
+        setFilter();
+    }//GEN-LAST:event_txtSearch2CaretUpdate
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
+        /*
+         * Set the Nimbus look and feel
+         */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+        /*
+         * If Nimbus (introduced in Java SE 6) is not available, stay with the
+         * default look and feel. For details see
+         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -148,24 +152,44 @@ public class UnigramManagement extends MapDBManagement {
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(UnigramManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SmoothedManagement.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
-        /* Create and display the form */
+        /*
+         * Create and display the form
+         */
         java.awt.EventQueue.invokeLater(new Runnable() {
+
             @Override
             public void run() {
-                new UnigramManagement().setVisible(true);
+                new SmoothedManagement().setVisible(true);
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lbStatus;
-    private javax.swing.JTable tblUnigram;
+    private javax.swing.JTable tblSmoothed;
     private javax.swing.JTextField txtSearch1;
+    private javax.swing.JTextField txtSearch2;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    protected final void loadData() {
+        model.setRowCount(0);
+        KneserNeyMapDB dictMapDB = new KneserNeyMapDB();
+        ArrayList<Object[]> dictData = dictMapDB.getAll();
+        for (Object[] rowData : dictData) {
+            model.addRow(rowData);
+        }
+        lbStatus.setText("Col No.  " + model.getRowCount());
+    }
+
+    protected void setFilter() {
+        super.setFilter(txtSearch1.getText(), txtSearch2.getText());
+        lbStatus.setText("Col No.  " + tblSmoothed.getRowCount() + " / " + model.getRowCount());
+    }
 }

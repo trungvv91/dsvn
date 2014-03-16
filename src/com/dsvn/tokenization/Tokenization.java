@@ -5,7 +5,10 @@
  */
 package com.dsvn.tokenization;
 
-import com.dsvn.ngrams.WordLabel;
+import com.dsvn.wordtoken.WordLabel;
+import com.dsvn.wordtoken.SpecialNode;
+import com.dsvn.wordtoken.MyNode;
+import com.dsvn.wordtoken.WordNode;
 import java.io.IOException;
 import java.util.ArrayList;
 

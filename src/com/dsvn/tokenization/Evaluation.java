@@ -6,10 +6,10 @@
 
 package com.dsvn.tokenization;
 
-import com.dsvn.mapdb.BigramMapDB;
+import com.dsvn.wordtoken.WordLabel;
+import com.dsvn.ngrams.BigramMapDB;
 import com.dsvn.dict.DictionaryMapDB;
-import com.dsvn.mapdb.UnigramMapDB;
-import com.dsvn.ngrams.WordLabel;
+import com.dsvn.ngrams.UnigramMapDB;
 
 /**
  *
@@ -42,12 +42,12 @@ public class Evaluation {
     public static double Eval(String word1, int label1, String word2, int label2) {
         String word_1 = (label1 == WordLabel.NONE) ? word1 : word1 + "_" + label1;
         String word_2 = (label2 == WordLabel.NONE) ? word2 : word2 + "_" + label2;
-        double eval = bigramMapDB.getProbability(word_1, word_2);
-        if (dictMapDB.getCount(word_1, word_2) > 0) {
+        double eval = bigramMapDB.getValue(word_1, word_2).a;
+        if (dictMapDB.getValue(word_1, word_2) > 0) {
             eval += 0.5;
 //            eval = (eval == 0.0) ? .10 : eval*2;
         }
-        eval = (eval == 0.0) ? -Math.log10(unigramMapDB.getCount(WordLabel.N)) : Math.log10(eval);
+        eval = (eval == 0.0) ? -Math.log10(unigramMapDB.getValue(WordLabel.N).b) : Math.log10(eval);
         return eval;
     }
     
@@ -55,8 +55,8 @@ public class Evaluation {
         unigramMapDB.closeDB();
         bigramMapDB.closeDB();
         dictMapDB.closeDB();
-        unigramMapDB = null;
-        bigramMapDB = null;
-        dictMapDB = null;
+//        unigramMapDB = null;
+//        bigramMapDB = null;
+//        dictMapDB = null;
     }
 }
