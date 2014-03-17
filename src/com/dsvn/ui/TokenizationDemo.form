@@ -29,13 +29,15 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Component id="jScrollPane1" min="-2" pref="919" max="-2" attributes="0"/>
                   <Component id="jScrollPane2" alignment="0" min="-2" pref="919" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="btnTokenize" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="lbExeTime" min="-2" pref="272" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="lbPerplexity" min="-2" pref="138" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace pref="24" max="32767" attributes="0"/>
@@ -51,6 +53,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="btnTokenize" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="lbExeTime" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="lbPerplexity" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace pref="35" max="32767" attributes="0"/>
               <Component id="jScrollPane2" min="-2" pref="247" max="-2" attributes="0"/>
@@ -112,6 +115,11 @@
     <Component class="javax.swing.JLabel" name="lbExeTime">
       <Properties>
         <Property name="text" type="java.lang.String" value="Execution time: "/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="lbPerplexity">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Perplexity:"/>
       </Properties>
     </Component>
   </SubComponents>

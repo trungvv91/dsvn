@@ -20,10 +20,13 @@ public class Tokenization {
 
     ArrayList<MyNode> wordlist;
     ArrayList<Integer> tracking;
+    double perplexity;
+    int N;
 
     public Tokenization() {
         wordlist = new ArrayList<>();
         tracking = new ArrayList<>();
+        perplexity = N = 0;
     }
 
     public static boolean IsValidPath(int label1, int label2) {
@@ -113,6 +116,9 @@ public class Tokenization {
                 currLabel = ((WordNode) currNode).pnodeLabels[currLabel];
             } else {        // START node
                 tracking.add(index, WordLabel.NONE);
+//                System.out.println("Perplexity of sentence: " + Math.pow(10, endNode.value / (index + 1 - tracking.size())));
+                perplexity += endNode.value;
+                N += (tracking.size() - index - 1);
                 return;
             }
         }
@@ -150,17 +156,22 @@ public class Tokenization {
                     result += "<.> ";
                     break;
             }
-            System.out.println(tracking.get(i));
+//            System.out.println(tracking.get(i));
         }
         return result.trim();
     }
-    
+
     public String tokenize(String input) {
         String[] sentences = input.split("[';!,\\.\\?]");
         for (String sentence : sentences) {
             addSentence(sentence.trim().split("\\s+"));
         }
+        System.out.println("Perplexity of corpus: " + Math.pow(10, -perplexity / N));
         return getTokenizedResult();
+    }
+    
+    public double getPerplexity() {
+        return Math.pow(10, -perplexity / N);
     }
 
     public static void main(String[] args) throws IOException {

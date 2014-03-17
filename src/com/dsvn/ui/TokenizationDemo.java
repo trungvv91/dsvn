@@ -57,6 +57,7 @@ public class TokenizationDemo extends javax.swing.JFrame {
         txtOutput = new javax.swing.JTextArea();
         btnTokenize = new javax.swing.JButton();
         lbExeTime = new javax.swing.JLabel();
+        lbPerplexity = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("DSVN Tokenization Demo");
@@ -90,19 +91,23 @@ public class TokenizationDemo extends javax.swing.JFrame {
 
         lbExeTime.setText("Execution time: ");
 
+        lbPerplexity.setText("Perplexity:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 919, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnTokenize)
                         .addGap(18, 18, 18)
-                        .addComponent(lbExeTime, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(lbExeTime, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lbPerplexity, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(24, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -113,7 +118,8 @@ public class TokenizationDemo extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnTokenize)
-                    .addComponent(lbExeTime))
+                    .addComponent(lbExeTime)
+                    .addComponent(lbPerplexity))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -127,7 +133,8 @@ public class TokenizationDemo extends javax.swing.JFrame {
         long startTime = System.currentTimeMillis();
         String result = tokenization.tokenize(txtInput.getText());
         long endTime = System.currentTimeMillis();
-        lbExeTime.setText("Execution time: " + (endTime - startTime) + " ms");
+        lbExeTime.setText("Execution time:  " + (endTime - startTime) + " ms");
+        lbPerplexity.setText("Perplexity:  " + Math.round(tokenization.getPerplexity() * 100) / 100.0);
         txtOutput.setText(result);
     }//GEN-LAST:event_btnTokenizeActionPerformed
 
@@ -176,6 +183,7 @@ public class TokenizationDemo extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lbExeTime;
+    private javax.swing.JLabel lbPerplexity;
     private javax.swing.JTextArea txtInput;
     private javax.swing.JTextArea txtOutput;
     // End of variables declaration//GEN-END:variables
