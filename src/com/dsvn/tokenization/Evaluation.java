@@ -9,9 +9,9 @@ import com.dsvn.wordtoken.WordLabel;
 import com.dsvn.dict.DictionaryMapDB;
 import com.dsvn.smoothing.BiKNMapDB;
 import com.dsvn.smoothing.UniKNMapDB;
-import com.dsvn.ngrams.BigramMapDB;
-import com.dsvn.ngrams.UnigramMapDB;
-import org.mapdb.Fun;
+//import com.dsvn.ngrams.BigramMapDB;
+//import com.dsvn.ngrams.UnigramMapDB;
+//import org.mapdb.Fun;
 
 /**
  *
