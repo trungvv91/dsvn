@@ -66,7 +66,7 @@ public class Evaluation {
         eval /= 2;
         Integer dictValue = dictMapDB.getValue(word_1, word_2);
         if (dictValue != null) {
-            eval += 0.5;
+            eval += 0.25;
         }
 //        eval = Math.log10(eval);
         eval = (eval == 0) ? -Math.log10(1e7) : Math.log10(eval);
